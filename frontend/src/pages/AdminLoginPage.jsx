@@ -1,51 +1,75 @@
-import Navbar from "../components/common/Navbar";
-import Footer from "../components/common/Footer";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-export default function AdminLoginPage() {
-  const [form, setForm] = useState({
-    email: "",
-    password: "",
+function AdminLoginPage() {
+  const navigate = useNavigate();
+
+  const [formData, setFormData] = useState({
+    username: "",
+    password: ""
   });
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+  const [message, setMessage] = useState("");
 
-  const handleSubmit = (e) => {
+  function handleChange(e) {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  }
+
+  async function handleSubmit(e) {
     e.preventDefault();
-    alert("Admin login submitted");
-  };
+
+    try {
+      const response = await fetch("http://localhost:5000/admin/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(formData)
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        localStorage.setItem("adminToken", data.token);
+        navigate("/admin/orders");
+      } else {
+        setMessage(data.message);
+      }
+    } catch (error) {
+      setMessage("Login failed. Please try again.");
+    }
+  }
 
   return (
-    <>
-      <div style={{ padding: "20px" }} className="page-container">
-        <h1>Admin Login</h1>
+    <div className="admin-login-page">
+      <form className="admin-login-form" onSubmit={handleSubmit}>
+        <h2>Admin Login</h2>
 
-        <form onSubmit={handleSubmit}>
-          <input
-            type="email"
-            name="email"
-            placeholder="Admin Email"
-            required
-            onChange={handleChange}
-          />
-          <br /><br />
+        {message && <p className="error-message">{message}</p>}
 
-          <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            required
-            onChange={handleChange}
-          />
-          <br /><br />
+        <input
+          type="text"
+          name="username"
+          placeholder="Username"
+          value={formData.username}
+          onChange={handleChange}
+        />
 
-          <button className="btn" type="submit">
-            Login
-          </button>
-        </form>
-      </div>
-    </>
+        <input
+          type="password"
+          name="password"
+          placeholder="Password"
+          value={formData.password}
+          onChange={handleChange}
+        />
+
+        <button type="submit">Login</button>
+      </form>
+    </div>
   );
 }
+
+export default AdminLoginPage;
