@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useCart } from "../context/CartContext";
+import formatCurrency from "../utils/formatCurrency";
 
 export default function ProductDetailPage() {
   const { id } = useParams();
@@ -48,38 +49,41 @@ export default function ProductDetailPage() {
   }
 
   return (
-    <div className="product-detail">
-      <div className="image-placeholder">Image coming soon</div>
-
-      <div className="product-info">
-        <h2>{product.name}</h2>
-        <p>{product.description}</p>
-        <p>Category: {product.category}</p>
-        <p>Stock: {product.stock}</p>
-        <p>R{product.price}</p>
-
-        <div className="product-actions">
-          <button className="btn" onClick={handleAddToCart}>
-            Add to Cart
-          </button>
-
-          <button
-            className="secondary-btn"
-            onClick={() => navigate("/products")}
-          >
-            Back to Shop
-          </button>
-
-          <button
-            className="secondary-btn"
-            onClick={() => navigate("/cart")}
-          >
-            Go to Cart
-          </button>
+    <main className="product-detail-page">
+      <div className="product-detail-card">
+        <div className="product-detail-image">
+          {product.image ? (
+            <img src={product.image} alt={product.name} />
+          ) : (
+            <span>Image coming soon</span>
+          )}
         </div>
 
-        {message && <p className="cart-message">{message}</p>}
+        <div className="product-info">
+          <p className="product-category">{product.category}</p>
+          <h2>{product.name}</h2>
+          <p className="product-description">{product.description}</p>
+
+          <p className="product-stock">Stock: {product.stock}</p>
+          <p className="product-detail-price">{formatCurrency(product.price)}</p>
+
+          <div className="product-actions">
+            <button className="btn" onClick={handleAddToCart}>
+              Add to Cart
+            </button>
+
+            <button className="secondary-btn" onClick={() => navigate("/products")}>
+              Back to Shop
+            </button>
+
+            <button className="secondary-btn" onClick={() => navigate("/cart")}>
+              Go to Cart
+            </button>
+          </div>
+
+          {message && <p className="cart-message">{message}</p>}
+        </div>
       </div>
-    </div>
+    </main>
   );
 }

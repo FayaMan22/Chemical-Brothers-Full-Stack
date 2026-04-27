@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
+import formatCurrency from "../utils/formatCurrency";
 
 export default function CartPage() {
   const {
@@ -31,8 +32,8 @@ export default function CartPage() {
         <div key={item.id} className="cart-item">
           <div className="cart-item-info">
             <h3>{item.name}</h3>
-            <p>R{item.price}</p>
-            <p>Subtotal: R{(item.price * item.quantity).toFixed(2)}</p>
+            <p>{formatCurrency(item.price)}</p>
+            <p>Subtotal: {formatCurrency(item.price * item.quantity)}</p>
           </div>
 
           <div className="cart-item-controls">
@@ -51,7 +52,7 @@ export default function CartPage() {
       ))}
 
       <div className="cart-summary">
-        <h3>Total: R{cartTotal.toFixed(2)}</h3>
+        <h3>Total: {formatCurrency(cartTotal)}</h3>
 
         <div className="cart-summary-actions">
           <button

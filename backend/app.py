@@ -46,7 +46,7 @@ class OrderItem(db.Model):
 
     order_id = db.Column(db.Integer, db.ForeignKey("order.id"), nullable=False)
 
-    product_id = db.Column(db.Integer, nullable=False)
+    product_id = db.Column(db.String(100), nullable=False)
     product_name = db.Column(db.String(100), nullable=False)
     price = db.Column(db.Float, nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
@@ -60,36 +60,11 @@ def format_datetime(dt):
 
     return dt.replace(tzinfo=timezone.utc).isoformat()
 
-# Temporary sample product data
-products = [
-    {
-        "id": 1,
-        "name": "Chemical Brothers Multi-Purpose Cleaner",
-        "category": "Cleaner",
-        "price": 12.99,
-        "stock": 25,
-        "description": "Powerful cleaning solution for household and industrial use.",
-        "image": "/images/product1.jpg"
-    },
-    {
-        "id": 2,
-        "name": "Chemical Brothers Dishwashing Liquid",
-        "category": "Dishwashing",
-        "price": 7.49,
-        "stock": 40,
-        "description": "Cuts grease fast and leaves dishes sparkling clean.",
-        "image": "/images/product2.jpg"
-    },
-    {
-        "id": 3,
-        "name": "Chemical Brothers Laundry Detergent",
-        "category": "Laundry",
-        "price": 15.99,
-        "stock": 18,
-        "description": "Deep-cleaning detergent for bright and fresh clothes.",
-        "image": "/images/product3.jpg"
-    }
-]
+# date
+with open("chemical_brothers_products.json", "r", encoding="utf-8") as file:
+    data = json.load(file)
+
+products = data["products"]
 
 contact_messages = []
 
@@ -109,9 +84,9 @@ def get_products():
     })
 
 
-@app.route("/products/<int:product_id>", methods=["GET"])
+@app.route("/products/<product_id>", methods=["GET"])
 def get_product(product_id):
-    product = next((p for p in products if p["id"] == product_id), None)
+    product = next((p for p in products if str(p["id"]) == str(product_id)), None)
 
     if not product:
         return jsonify({
@@ -249,7 +224,6 @@ def handle_orders():
             "customer_email": new_order.customer_email,
             "phone": new_order.phone,
             "address": new_order.address,
-            ##"items": json.loads(new_order.items_json),
             "subtotal": new_order.subtotal,
             "delivery_fee": new_order.delivery_fee,
             "total": new_order.total,

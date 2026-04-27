@@ -1,6 +1,7 @@
 import { useCart } from "../context/CartContext";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import formatCurrency from "../utils/formatCurrency";
 
 export default function CheckoutPage() {
   const { cartItems, clearCart } = useCart();
@@ -21,8 +22,7 @@ export default function CheckoutPage() {
     0
   );
 
-  const deliveryFee = 50;
-  const total = subtotal + deliveryFee;
+  const total = subtotal;
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -46,7 +46,6 @@ export default function CheckoutPage() {
       address: form.address,
       items: cartItems,
       subtotal: subtotal,
-      delivery_fee: deliveryFee,
       total: total,
     };
 
@@ -118,9 +117,8 @@ export default function CheckoutPage() {
         />
         <br /><br />
 
-        <h3>Subtotal: R{subtotal.toFixed(2)}</h3>
-        <h3>Delivery Fee: R{deliveryFee.toFixed(2)}</h3>
-        <h2>Total: R{total.toFixed(2)}</h2>
+        <h3>Subtotal: {formatCurrency(subtotal)}</h3>
+        <h2>Total: {formatCurrency(total)}</h2>
 
         {error && <p style={{ color: "red" }}>{error}</p>}
 

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import ProductGrid from "../components/products/ProductGrid";
 import SearchBar from "../components/products/SearchBar";
 
+
 function ProductsPage() {
   const [products, setProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -33,8 +34,14 @@ function ProductsPage() {
     );
 
   return (
-    <main>
-      <h1 style={{ textAlign: "center" }}>Products</h1>
+    <main className="products-page">
+      <section className="products-header">
+        <h1>Our Products</h1>
+        <p>
+          Explore our range of cleaning, hygiene, automotive, packaging, and
+          specialist chemical solutions. 
+        </p>
+      </section>
 
       <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
 
@@ -52,8 +59,13 @@ function ProductsPage() {
 
       {loading && <p style={{ textAlign: "center" }}>Loading products...</p>}
       {error && <p style={{ textAlign: "center", color: "red" }}>{error}</p>}
-
-      {!loading && !error && <ProductGrid products={filteredProducts} />}
+      
+      {!loading && !error && filteredProducts.length === 0 && (
+        <p className="no-products">No products found.</p>
+      )}
+      {!loading && !error && filteredProducts.length > 0 && (
+        <ProductGrid products={filteredProducts} />
+      )}
     </main>
   );
 }

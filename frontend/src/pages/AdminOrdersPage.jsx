@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import logo from "../assets/images/logo.png";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
+import company from "../components/config/company";
+import formatCurrency from "../utils/formatCurrency";
+
 
 export default function AdminOrdersPage() {
   const navigate = useNavigate();
@@ -93,6 +98,39 @@ export default function AdminOrdersPage() {
     window.location.reload();
   }
 
+   const downloadInvoice = async (orderId) => {
+    const input = document.getElementById(`invoice-${orderId}`);
+    if (!input) return;
+
+    const canvas = await html2canvas(input, {
+      scale: 2,
+      useCORS: true
+    });
+
+    const imgData = canvas.toDataURL("image/png");
+
+    const pdf = new jsPDF("p", "mm", "a4");
+
+    const imgWidth = 210;
+    const pageHeight = 295;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+    let heightLeft = imgHeight;
+    let position = 0;
+
+    pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+    heightLeft -= pageHeight;
+
+    while (heightLeft > 0) {
+      position = heightLeft - imgHeight;
+      pdf.addPage();
+      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+    }
+
+    pdf.save(`ChemicalBrothers-Invoice-${orderId}.pdf`);
+  };
+
   return (
     <div className="admin-orders-page">
       <h1>Admin Orders</h1>
@@ -122,35 +160,78 @@ export default function AdminOrdersPage() {
               <h3>Order #{order.id}</h3>
 
               <div className="invoice-header-row">
-                <img src={logo} alt="Logo" className="invoice-logo" />
 
-                <div className="invoice-info">
-                  <h2>Chemical Brothers</h2>
-                  <p>Invoice</p>
-                  <p>Order #{order.id}</p>
+                {/* LEFT */}
+                <div className="invoice-left">
+                  <img src={logo} alt="Logo" className="invoice-logo" />
+
+                  <p><strong>Order #:</strong> {order.id}</p>
+                  <p>
+                    <strong>Date:</strong>{" "}
+                    {new Date(order.created_at).toLocaleDateString("en-ZA", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric"
+                    })}
+                  </p>
+                </div>
+
+                {/* CENTER */}
+                <div className="invoice-center">
+                  <h1>INVOICE</h1>
+                </div>
+
+                {/* RIGHT */}
+                <div className="invoice-right">
+                  <p><strong>{company.name}</strong></p>
+                  <p>{company.addressLine1}, {company.addressLine2}</p>
+
+                  <p className="company-phone">
+                    <strong>Tel:</strong> {company.phone1} / {company.phone2} / {company.phone3}
+                  </p>
+
+                  <p><strong>Email:</strong> {company.email}</p>
+
+                  <p>
+                    <strong>Web:</strong>{" "}
+                    <a href={`https://${company.website}`} target="_blank" rel="noreferrer">
+                      {company.website}
+                    </a>
+                  </p>
                 </div>
               </div>
               
-              <button
-                className="print-invoice-btn"
-                onClick={() => printSingleOrder(order.id)}>
+              <div style={{ display: "flex", gap: "10px", marginBottom: "12px" }}>
+                <button
+                  className="print-invoice-btn"
+                  onClick={() => printSingleOrder(order.id)}
+                >
                   Print Invoice
-              </button>
+                </button>
 
-              <p>
-                <strong>Date:</strong>{" "}
-                {new Date(order.created_at).toLocaleDateString()}
-              </p>
-              <p><strong>Name:</strong> {order.customer_name}</p>
-              <p><strong>Email:</strong> {order.customer_email}</p>
-              <p><strong>Phone:</strong> {order.phone}</p>
-              <p><strong>Address:</strong> {order.address}</p>
-              <p>
-                <strong>Status:</strong>{" "}
-                <span className={`status-badge ${order.status.toLowerCase()}`}>
-                  {order.status}
-                </span>
-              </p>
+                <button
+                  className="print-invoice-btn"
+                  onClick={() => downloadInvoice(order.id)}
+                >
+                  Download Invoice
+                </button>
+              </div>
+
+              <div className="invoice-summary">
+                
+                <div>
+                  <strong>Status:</strong>{" "}
+                  <span className={`status-badge ${order.status.toLowerCase()}`}>
+                    {order.status}
+                  </span>
+                </div>
+
+                <div><strong>Name:</strong> {order.customer_name}</div>
+                <div><strong>Email:</strong> {order.customer_email}</div>
+
+                <div><strong>Phone:</strong> {order.phone}</div>
+                <div><strong>Address:</strong> {order.address}</div>
+              </div>
 
               <div className="status-actions">
                 <button onClick={() => updateOrderStatus(order.id, "Pending")}>
@@ -165,9 +246,6 @@ export default function AdminOrdersPage() {
                   Delivered
                 </button>
               </div>
-              <p><strong>Subtotal:</strong> R{Number(order.subtotal).toFixed(2)}</p>
-              <p><strong>Delivery Fee:</strong> R{Number(order.delivery_fee).toFixed(2)}</p>
-              <p><strong>Total:</strong> R{Number(order.total).toFixed(2)}</p>
 
               <div className="order-items">
                 <h4>Items Ordered</h4>
@@ -185,15 +263,17 @@ export default function AdminOrdersPage() {
                   <div key={index} className="order-item-row">
                     <span>{item.name}</span>
                     <span>{item.quantity}</span>
-                    <span>R{Number(item.price).toFixed(2)}</span>
-                    <span>R{(item.price * item.quantity).toFixed(2)}</span>
+                    <span>{formatCurrency(item.price)}</span>
+                    <span>{formatCurrency(item.price * item.quantity)}</span>
                   </div>
                 ))}
               </div>
               <div className="invoice-totals">
-                  <p>Subtotal: R{Number(order.subtotal).toFixed(2)}</p>
-                  <p>Delivery: R{Number(order.delivery_fee).toFixed(2)}</p>
-                  <h3>Total: R{Number(order.total).toFixed(2)}</h3>
+                  <p>Subtotal: {formatCurrency(order.subtotal)}</p>
+                  <h3>Total: {formatCurrency(order.total)}</h3>
+                  <p style={{ fontSize: "12px", color: "#666" }}>
+                    *Prices include delivery
+                  </p>
                 </div>
             </div>
           ))}
