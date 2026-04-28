@@ -1,89 +1,45 @@
-import { useParams, useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
-import { useCart } from "../context/CartContext";
-import formatCurrency from "../utils/formatCurrency";
+import { Link, useParams } from "react-router-dom";
+import products from "../data/mockProducts";
 
 export default function ProductDetailPage() {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const { addToCart } = useCart();
+  const { slug } = useParams();
 
-  const [product, setProduct] = useState(null);
-  const [message, setMessage] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const product = products.find((item) => item.slug === slug);
 
-  useEffect(() => {
-    fetch(`http://127.0.0.1:5000/products/${id}`)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Product not found");
-        }
-        return response.json();
-      })
-      .then((data) => {
-        setProduct(data.product);
-        setLoading(false);
-      })
-      .catch(() => {
-        setError("Product not found.");
-        setLoading(false);
-      });
-  }, [id]);
-
-  const handleAddToCart = () => {
-    addToCart(product);
-    setMessage("Added to cart!");
-
-    setTimeout(() => {
-      setMessage("");
-    }, 2000);
-  };
-
-  if (loading) {
-    return <p style={{ textAlign: "center" }}>Loading product...</p>;
-  }
-
-  if (error) {
-    return <h2 style={{ textAlign: "center" }}>{error}</h2>;
+  if (!product) {
+    return (
+      <div className="page-container">
+        <h2>Product not found.</h2>
+        <Link to="/products" className="btn">
+          Back to Products
+        </Link>
+      </div>
+    );
   }
 
   return (
-    <main className="product-detail-page">
-      <div className="product-detail-card">
-        <div className="product-detail-image">
-          {product.image ? (
-            <img src={product.image} alt={product.name} />
-          ) : (
-            <span>Image coming soon</span>
-          )}
-        </div>
+    <div className="product-detail-page">
+      <img src={product.image} alt={product.name} />
 
-        <div className="product-info">
-          <p className="product-category">{product.category}</p>
-          <h2>{product.name}</h2>
-          <p className="product-description">{product.description}</p>
+      <div>
+        <h1>{product.name}</h1>
+        <p>{product.description}</p>
+        <p><strong>Category:</strong> {product.category}</p>
+        <p><strong>Price:</strong> ${product.price}</p>
 
-          <p className="product-stock">Stock: {product.stock}</p>
-          <p className="product-detail-price">{formatCurrency(product.price)}</p>
-
-          <div className="product-actions">
-            <button className="btn" onClick={handleAddToCart}>
-              Add to Cart
-            </button>
-
-            <button className="secondary-btn" onClick={() => navigate("/products")}>
-              Back to Shop
-            </button>
-
-            <button className="secondary-btn" onClick={() => navigate("/cart")}>
-              Go to Cart
-            </button>
-          </div>
-
-          {message && <p className="cart-message">{message}</p>}
-        </div>
+        <Link to="/products" className="btn">
+          Back to Products
+        </Link>
       </div>
-    </main>
+      <div style={{ marginTop: "20px", display: "flex", gap: "10px" }}>
+        <Link to="/products" className="btn">
+          ⬅ Back to Shop
+        </Link>
+
+        <Link to="/cart" className="btn">
+          🛒 Go to Cart
+        </Link>
+      </div>
+    </div>
   );
 }

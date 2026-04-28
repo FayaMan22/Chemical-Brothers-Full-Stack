@@ -23,7 +23,7 @@ export default function ProductCard({ product }) {
         <p className="product-price">{formatCurrency(product.price)}</p>
 
         <div className="product-actions">
-          <Link to={`/products/${product.id}`} className="product-btn">
+          <Link to={`/products/${product.slug}`} className="product-btn">
             View
           </Link>
 
