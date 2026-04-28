@@ -4,13 +4,21 @@ from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 import json
 from functools import wraps
+from flask_mail import Mail, Message
 
 app = Flask(__name__)
 CORS(app)
 app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://postgres:Azach26%23@localhost:5432/chemical_brothers"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = 'tmanchaz@gmail.com'
+app.config['MAIL_PASSWORD'] = 'mvow qmbv cqmx zcgi'
+
 db = SQLAlchemy(app)
+mail = Mail(app)
 
 ADMIN_TOKEN = "admin-token"
 
@@ -215,6 +223,52 @@ def handle_orders():
 
     db.session.commit()
 
+    msg = Message(
+    subject="Order Confirmation",
+    sender=app.config['MAIL_USERNAME'],
+    recipients=[customer_email]
+    )
+
+    msg.body = f"""
+    Hello {customer_name},
+
+    Your order #{new_order.id} has been received.
+
+    Total: {total}
+
+    We will contact you shortly.
+
+    Thank you,
+    Chemical Brothers
+    """
+
+    admin_msg = Message(
+        subject="New Order Received",
+        sender=app.config['MAIL_USERNAME'],
+        recipients=[app.config['MAIL_USERNAME']]
+    )
+
+    admin_msg.body = f"""
+    New order received:
+
+    Order ID: {new_order.id}
+    Customer: {customer_name}
+    Email: {customer_email}
+    Total: {total}
+    """
+
+    try:
+        mail.send(msg)
+    except Exception as e:
+        print("Customer email failed:", e)
+
+    try:
+        mail.send(admin_msg)
+    except Exception as e:
+        print("Admin email failed:", e)
+
+    mail.send(admin_msg)
+
     return jsonify({
         "success": True,
         "message": "Order created successfully.",
@@ -263,7 +317,15 @@ def update_order_status(order_id):
             "customer_email": order.customer_email,
             "phone": order.phone,
             "address": order.address,
-            "items": json.loads(order.items_json),
+           "items": [
+                {
+                    "id": item.product_id,
+                    "name": item.product_name,
+                    "price": item.price,
+                    "quantity": item.quantity
+                }
+                for item in order.order_items
+            ],
             "subtotal": order.subtotal,
             "delivery_fee": order.delivery_fee,
             "total": order.total,

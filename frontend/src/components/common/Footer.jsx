@@ -1,4 +1,5 @@
 import company from "../config/company";
+import { Link } from "react-router-dom";
 
 function Footer() {
   return (
@@ -32,6 +33,9 @@ function Footer() {
               {company.website}
             </a>
           </p>
+          <Link to="/admin/login" className="admin-link">
+              Admin
+           </Link>
         </div>
 
       </div>

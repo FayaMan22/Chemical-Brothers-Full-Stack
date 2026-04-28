@@ -992,18 +992,43 @@ body {
   text-align: right;
 }
 
-.invoice-header-row {
+.invoice-title-row {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.invoice-title-row h1 {
+  font-size: 2.2rem;
+  margin: 0;
+}
+
+.invoice-details-row {
   display: grid;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-  grid-template-columns: 1fr 0.8fr 1.7fr;
+  grid-template-columns: 1fr 2.2fr;
+  gap: 40px;
+  align-items: start;
+  margin-bottom: 25px;
+}
+
+.invoice-left {
+  text-align: left;
+}
+
+.invoice-right {
+  text-align: right;
+  font-size: 0.85rem;
+  line-height: 1.3;
+}
+
+.invoice-right p {
+  margin: 3px 0;
 }
 
 .invoice-logo {
-  width: 200px;   /* increase from 100px */
+  max-width: 180px;
   height: auto;
-  margin-bottom: 10px;
+  display: block;
+  margin-bottom: 15px;
 }
 
 .invoice-info {
@@ -1035,6 +1060,12 @@ body {
 .invoice-totals p,
 .invoice-totals h3 {
   margin: 3px 0;
+}
+
+.hide-buttons .print-invoice-btn,
+.hide-buttons .secondary-btn,
+.hide-buttons .status-actions {
+  display: none !important;
 }
 
 @media print {
@@ -1071,13 +1102,6 @@ body {
   width: 150px;   /* increase from 100px */
   height: auto;
   margin-bottom: 10px;
-}
-
- .invoice-header-row {
-  display: grid;
-  grid-template-columns: 1fr 0.8fr 1.7fr;
-  align-items: flex-start;
-  margin-bottom: 16px;
 }
 
 .invoice-left {
@@ -1277,4 +1301,266 @@ body {
   text-align: center;
   color: #5f6f81;
   margin-top: 30px;
+}
+
+.checkout-page {
+  padding: 60px 8%;
+  background: #f8fbff;
+  min-height: 100vh;
+}
+
+.checkout-page h1 {
+  text-align: center;
+  color: #102a43;
+  margin-bottom: 35px;
+}
+
+.checkout-layout {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 30px;
+}
+
+.checkout-form,
+.checkout-summary {
+  background: white;
+  padding: 28px;
+  border-radius: 18px;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.08);
+}
+
+.checkout-form h2,
+.checkout-summary h2 {
+  color: #102a43;
+  margin-bottom: 20px;
+}
+
+.checkout-form input,
+.checkout-form textarea {
+  width: 100%;
+  padding: 13px 14px;
+  margin-bottom: 15px;
+  border: 1px solid #d7e2ec;
+  border-radius: 10px;
+  font-size: 0.95rem;
+}
+
+.checkout-form textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+.checkout-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 16px;
+}
+
+.checkout-item p {
+  color: #5f6f81;
+  margin-top: 5px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 18px;
+}
+
+.total-row {
+  font-size: 1.2rem;
+  color: #0077b6;
+}
+
+.checkout-error {
+  color: #e63946;
+  font-weight: 600;
+  margin-bottom: 15px;
+}
+
+@media (max-width: 800px) {
+  .checkout-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.order-success {
+  padding: 60px 8%;
+  text-align: center;
+}
+
+.order-card {
+  background: white;
+  padding: 30px;
+  border-radius: 16px;
+  max-width: 600px;
+  margin: 30px auto;
+  box-shadow: 0 8px 22px rgba(0,0,0,0.08);
+  text-align: left;
+}
+
+.order-card p {
+  margin: 8px 0;
+}
+
+.order-actions {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.contact-page {
+  padding: 50px 8%;
+}
+
+.contact-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.contact-header h1 {
+  font-size: 2.4rem;
+  margin-bottom: 10px;
+}
+
+.contact-header p {
+  color: #555;
+  font-size: 1.05rem;
+}
+
+.contact-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 35px;
+  align-items: start;
+}
+
+.contact-info-card,
+.contact-form-card {
+  background: #ffffff;
+  padding: 30px;
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.contact-info-card h2,
+.contact-form-card h2 {
+  margin-bottom: 20px;
+}
+
+.contact-info-card p {
+  margin-bottom: 14px;
+  color: #333;
+}
+
+.contact-form-card input,
+.contact-form-card textarea {
+  width: 100%;
+  padding: 13px 15px;
+  margin-bottom: 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+.contact-form-card textarea {
+  min-height: 130px;
+  resize: vertical;
+}
+
+.contact-buttons {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 25px;
+}
+
+.contact-btn {
+  text-decoration: none;
+  background: #0b5ed7;
+  color: white;
+  padding: 11px 18px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.contact-btn.whatsapp {
+  background: #25d366;
+}
+
+.contact-btn.whatsapp:hover {
+  color: #0b5ed7;
+}
+
+@media (max-width: 768px) {
+  .contact-content {
+    grid-template-columns: 1fr;
+  }
+
+  .contact-page {
+    padding: 35px 5%;
+  }
+}
+
+.phone-item {
+  margin-bottom: 10px;
+}
+
+.phone-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.phone-icon {
+  font-size: 1.1rem;
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+/* Hover effect */
+.phone-link:hover {
+  color: #0b5ed7;
+}
+
+.phone-link:hover .phone-icon {
+  color: #0b5ed7;
+  transform: scale(1.2);
+}
+.floating-whatsapp {
+  position: fixed;
+  right: 25px;
+  bottom: 25px;
+  width: 58px;
+  height: 58px;
+  background: #25d366;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  font-size: 1.8rem;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+  z-index: 999;
+  transition: transform 0.3s ease, background 0.3s ease;
+}
+
+.floating-whatsapp:hover {
+  transform: scale(1.1);
+  background: #1ebe5d;
+}
+
+.admin-link {
+  font-size: 0.8rem;
+  color: #999;
+  text-decoration: none;
+}
+
+.admin-link:hover {
+  color: #0b5ed7;
 }

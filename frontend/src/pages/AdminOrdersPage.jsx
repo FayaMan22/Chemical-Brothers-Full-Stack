@@ -5,6 +5,8 @@ import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import company from "../components/config/company";
 import formatCurrency from "../utils/formatCurrency";
+import { FaPhone, FaEnvelope, FaGlobe, FaMapMarkerAlt } from "react-icons/fa";
+
 
 
 export default function AdminOrdersPage() {
@@ -102,6 +104,9 @@ export default function AdminOrdersPage() {
     const input = document.getElementById(`invoice-${orderId}`);
     if (!input) return;
 
+    // 🔥 hide buttons temporarily
+    document.body.classList.add("hide-buttons");
+
     const canvas = await html2canvas(input, {
       scale: 2,
       useCORS: true
@@ -112,27 +117,26 @@ export default function AdminOrdersPage() {
     const pdf = new jsPDF("p", "mm", "a4");
 
     const imgWidth = 210;
-    const pageHeight = 295;
     const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-    let heightLeft = imgHeight;
-    let position = 0;
+    pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
 
-    pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-    heightLeft -= pageHeight;
+    pdf.save(`Invoice-${orderId}.pdf`);
 
-    while (heightLeft > 0) {
-      position = heightLeft - imgHeight;
-      pdf.addPage();
-      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
-    }
-
-    pdf.save(`ChemicalBrothers-Invoice-${orderId}.pdf`);
+    // 🔥 restore buttons
+    document.body.classList.remove("hide-buttons");
   };
 
   return (
     <div className="admin-orders-page">
+      <button
+        className="btn"
+        onClick={() => navigate("/")}
+        style={{ marginBottom: "20px" }}
+      >
+        ⬅ Back to Home
+      </button>
+      
       <h1>Admin Orders</h1>
 
       <button className="secondary-btn" onClick={handleLogout}>
@@ -159,45 +163,39 @@ export default function AdminOrdersPage() {
             <div key={order.id} className="order-card" id={`invoice-${order.id}`}>
               <h3>Order #{order.id}</h3>
 
-              <div className="invoice-header-row">
-
-                {/* LEFT */}
-                <div className="invoice-left">
-                  <img src={logo} alt="Logo" className="invoice-logo" />
-
-                  <p><strong>Order #:</strong> {order.id}</p>
-                  <p>
-                    <strong>Date:</strong>{" "}
-                    {new Date(order.created_at).toLocaleDateString("en-ZA", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric"
-                    })}
-                  </p>
-                </div>
-
-                {/* CENTER */}
-                <div className="invoice-center">
+              <div className="invoice-header">
+                {/* ROW 1 */}
+                <div className="invoice-title-row">
                   <h1>INVOICE</h1>
                 </div>
 
-                {/* RIGHT */}
-                <div className="invoice-right">
-                  <p><strong>{company.name}</strong></p>
-                  <p>{company.addressLine1}, {company.addressLine2}</p>
+                {/* ROW 2 */}
+                <div className="invoice-details-row">
+                  <div className="invoice-left">
+                    <img src={logo} alt="Logo" className="invoice-logo" />
 
-                  <p className="company-phone">
-                    <strong>Tel:</strong> {company.phone1} / {company.phone2} / {company.phone3}
-                  </p>
+                    <p><strong>Order #:</strong> {order.id}</p>
+                    <p>
+                      <strong>Date:</strong>{" "}
+                      {new Date(order.created_at).toLocaleDateString("en-ZA", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}
+                    </p>
+                  </div>
 
-                  <p><strong>Email:</strong> {company.email}</p>
-
-                  <p>
-                    <strong>Web:</strong>{" "}
-                    <a href={`https://${company.website}`} target="_blank" rel="noreferrer">
-                      {company.website}
-                    </a>
-                  </p>
+                  <div className="invoice-right">
+                    <p><strong>{company.name}</strong></p>
+                    <p><FaMapMarkerAlt />{company.addressLine1}, {company.addressLine2}</p>
+                    <p><FaPhone />{company.phone1} / {company.phone2} / {company.phone3}</p>
+                    <p><FaEnvelope /> {company.email}</p>
+                    <p><FaGlobe />{" "}
+                        <a href={`https://${company.website}`} target="_blank" rel="noreferrer">
+                          {company.website}
+                        </a> 
+                    </p>
+                  </div>
                 </div>
               </div>
               
@@ -271,9 +269,6 @@ export default function AdminOrdersPage() {
               <div className="invoice-totals">
                   <p>Subtotal: {formatCurrency(order.subtotal)}</p>
                   <h3>Total: {formatCurrency(order.total)}</h3>
-                  <p style={{ fontSize: "12px", color: "#666" }}>
-                    *Prices include delivery
-                  </p>
                 </div>
             </div>
           ))}

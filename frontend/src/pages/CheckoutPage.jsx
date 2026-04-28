@@ -65,7 +65,9 @@ export default function CheckoutPage() {
       }
 
       clearCart();
-      navigate("/order-success");
+      navigate("/order-success", {
+        state: {order: data.order}
+      });
     } catch (err) {
       setError(err.message || "Something went wrong.");
     } finally {
@@ -74,58 +76,76 @@ export default function CheckoutPage() {
   };
 
   return (
-    <div style={{ padding: "20px" }} className="page-container">
+    <main className="checkout-page">
       <h1>Checkout</h1>
 
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          name="name"
-          placeholder="Full Name"
-          required
-          value={form.name}
-          onChange={handleChange}
-        />
-        <br /><br />
+      <div className="checkout-layout">
+        <form className="checkout-form" onSubmit={handleSubmit}>
+          <h2>Customer Details</h2>
 
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          required
-          value={form.email}
-          onChange={handleChange}
-        />
-        <br /><br />
+          <input
+            type="text"
+            name="name"
+            placeholder="Full Name"
+            required
+            value={form.name}
+            onChange={handleChange}
+          />
 
-        <input
-          type="text"
-          name="phone"
-          placeholder="Phone"
-          required
-          value={form.phone}
-          onChange={handleChange}
-        />
-        <br /><br />
+          <input
+            type="email"
+            name="email"
+            placeholder="Email"
+            required
+            value={form.email}
+            onChange={handleChange}
+          />
 
-        <textarea
-          name="address"
-          placeholder="Delivery Address"
-          required
-          value={form.address}
-          onChange={handleChange}
-        />
-        <br /><br />
+          <input
+            type="text"
+            name="phone"
+            placeholder="Phone"
+            required
+            value={form.phone}
+            onChange={handleChange}
+          />
 
-        <h3>Subtotal: {formatCurrency(subtotal)}</h3>
-        <h2>Total: {formatCurrency(total)}</h2>
+          <textarea
+            name="address"
+            placeholder="Delivery Address"
+            required
+            value={form.address}
+            onChange={handleChange}
+          />
 
-        {error && <p style={{ color: "red" }}>{error}</p>}
+          {error && <p className="checkout-error">{error}</p>}
 
-        <button className="btn" type="submit" disabled={loading}>
-          {loading ? "Placing Order..." : "Place Order"}
-        </button>
-      </form>
-    </div>
+          <button className="btn" type="submit" disabled={loading}>
+            {loading ? "Placing Order..." : "Place Order"}
+          </button>
+        </form>
+
+        <aside className="checkout-summary">
+          <h2>Order Summary</h2>
+
+          {cartItems.map((item) => (
+            <div key={item.id} className="checkout-item">
+              <div>
+                <strong>{item.name}</strong>
+                <p>Qty: {item.quantity}</p>
+              </div>
+              <span>{formatCurrency(item.price * item.quantity)}</span>
+            </div>
+          ))}
+
+          <hr />
+
+          <div className="summary-row total-row">
+            <span>Total</span>
+            <strong>{formatCurrency(total)}</strong>
+          </div>
+        </aside>
+      </div>
+    </main>
   );
 }
