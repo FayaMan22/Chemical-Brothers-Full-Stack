@@ -3,7 +3,7 @@
     {
       "id": "clean-2014084-11",
       "code": "2014084",
-      "name": "Floorbrite floor & furniture neutral polish 400ml",
+      "name": "Floorbrite floor & furniture neutral polish DXT 400ml",
       "description": "Floor care product from The Chemical Brothers.",
       "category": "Floor care",
       "price": 0.0,
@@ -451,7 +451,7 @@
       "price": 0.0,
       "packSize": "",
       "stock": 0,
-      "image": "",
+      "image": "Floormit-5l.jpeg",
       "slug": "floormite-active-tile-cleaner-5l",
       "source": "TCB Price list"
     },
@@ -633,7 +633,7 @@
       "price": 0.0,
       "packSize": "",
       "stock": 0,
-      "image": "",
+      "image": "Diptan-toilet-dip-5l.jpeg",
       "slug": "diptan-toilet-dip-5l",
       "source": "TCB Price list"
     },
@@ -666,14 +666,14 @@
     {
       "id": "clean-2014134-63",
       "code": "2014134",
-      "name": "Stash Germ Guard 400ml",
+      "name": "Stash Germ Guard 5L",
       "description": "Lavatory care product from The Chemical Brothers.",
       "category": "Lavatory care",
       "price": 0.0,
       "packSize": "",
       "stock": 0,
-      "image": "",
-      "slug": "stash-germ-guard-400ml",
+      "image": "Stash-germ-guard-5l.jpeg",
+      "slug": "stash-germ-guard-5l",
       "source": "TCB Price list"
     },
     {
@@ -685,7 +685,7 @@
       "price": 0.0,
       "packSize": "",
       "stock": 0,
-      "image": "",
+      "image": "Stash-bluefresh-5l.jpeg",
       "slug": "stash-blue-fresh-5l",
       "source": "TCB Price list"
     },
@@ -724,7 +724,7 @@
       "price": 0.0,
       "packSize": "",
       "stock": 0,
-      "image": "",
+      "image": "Stash-toilet-deodoriser.5l.jpeg",
       "slug": "stash-toilet-deodoriser-5l",
       "source": "TCB Price list"
     },

@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import formatCurrency from "../../utils/formatCurrency";
 import { useCart } from "../../context/CartContext";
 import { useState } from "react";
+import productImages from "../../utils/productImages";
 
 export default function ProductCard({ product }) {
   const { addToCart } = useCart();
@@ -11,7 +12,10 @@ export default function ProductCard({ product }) {
     <div className="product-card">
       <div className="product-image-box">
         {product.image ? (
-          <img src={product.image} alt={product.name} />
+          <img
+            src={`/assets/product-images/${product.image}`}
+            alt={product.name}
+          />
         ) : (
           <span>No image yet</span>
         )}

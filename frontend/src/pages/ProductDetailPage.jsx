@@ -53,7 +53,10 @@ export default function ProductDetailPage() {
       <div className="product-detail-card">
         <div className="product-detail-image">
           {product.image ? (
-            <img src={product.image} alt={product.name} />
+            <img 
+              src={`/assets/product-images/${product.image}`} 
+              alt={product.name} 
+            />
           ) : (
             <span>Image coming soon</span>
           )}

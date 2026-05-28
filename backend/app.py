@@ -479,7 +479,7 @@ def update_order_status(order_id):
     db.session.commit()
 
     whatsapp_number = "+263772912789"  # company WhatsApp number
-   # tracking_link = f"http://localhost:5173/track-order/{order.id}"
+    tracking_link = f"http://localhost:5173/track-order/{order.id}"
 
     # ✅ Add this block HERE
     if new_status == "Processing":
