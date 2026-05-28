@@ -16,7 +16,14 @@ from reportlab.pdfgen import canvas
 load_dotenv()
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={
+    r"/*": {
+        "origins" : [
+            "https://chemical-brothers-full-stack-7uoe.vercel.app",
+            "http://localhost:5173"
+        ]
+    }
+})
 
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
