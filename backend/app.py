@@ -1,3 +1,4 @@
+
 from datetime import datetime, timezone
 from flask import Flask, jsonify, request
 from flask_cors import CORS
@@ -5,22 +6,35 @@ from flask_sqlalchemy import SQLAlchemy
 import json
 from functools import wraps
 from flask_mail import Mail, Message
+from dotenv import load_dotenv
+import os
+from io import BytesIO
+from reportlab.lib.pagesizes import A4
+from reportlab.pdfgen import canvas
+
+
+load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
-app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://postgres:Azach26%23@localhost:5432/chemical_brothers"
+
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'tmanchaz@gmail.com'
-app.config['MAIL_PASSWORD'] = 'mvow qmbv cqmx zcgi'
+app.config["MAIL_SERVER"] = os.getenv("MAIL_SERVER", "smtp.gmail.com")
+app.config["MAIL_PORT"] = int(os.getenv("MAIL_PORT", 587))
+app.config["MAIL_USE_TLS"] = os.getenv("MAIL_USE_TLS", "True") == "True"
+app.config["MAIL_USE_SSL"] = os.getenv("MAIL_USE_SSL", "False") == "True"
+app.config["MAIL_USERNAME"] = os.getenv("MAIL_USERNAME")
+app.config["MAIL_PASSWORD"] = os.getenv("MAIL_PASSWORD")
+app.config["MAIL_DEFAULT_SENDER"] = os.getenv("MAIL_USERNAME")
+
+CURRENCY_SYMBOL = os.getenv("CURRENCY_SYMBOL", "$")
 
 db = SQLAlchemy(app)
 mail = Mail(app)
 
-ADMIN_TOKEN = "admin-token"
+ADMIN_TOKEN = os.getenv("ADMIN_TOKEN", "admin-token")
 
 def admin_required(f):
     @wraps(f)
@@ -75,6 +89,71 @@ with open("chemical_brothers_products.json", "r", encoding="utf-8") as file:
 products = data["products"]
 
 contact_messages = []
+
+def generate_invoice_pdf(order, order_items):
+    buffer = BytesIO()
+
+    pdf = canvas.Canvas(buffer, pagesize=A4)
+    width, height = A4
+
+    y = height - 50
+
+    pdf.setFont("Helvetica-Bold", 18)
+    pdf.drawString(50, y, "Chemical Brothers Invoice")
+
+    y -= 40
+    pdf.setFont("Helvetica", 11)
+    pdf.drawString(50, y, f"Invoice / Order ID: #{order.id}")
+
+    y -= 20
+    pdf.drawString(50, y, f"Customer: {order.customer_name}")
+
+    y -= 20
+    pdf.drawString(50, y, f"Email: {order.customer_email}")
+
+    y -= 20
+    pdf.drawString(50, y, f"Phone: {order.phone}")
+
+    y -= 20
+    pdf.drawString(50, y, f"Address: {order.address}")
+
+    y -= 40
+    pdf.setFont("Helvetica-Bold", 11)
+    pdf.drawString(50, y, "Product")
+    pdf.drawString(250, y, "Qty")
+    pdf.drawString(320, y, "Price")
+    pdf.drawString(420, y, "Subtotal")
+
+    y -= 20
+    pdf.setFont("Helvetica", 10)
+
+    for item in order_items:
+        item_subtotal = item.price * item.quantity
+
+        pdf.drawString(50, y, str(item.product_name))
+        pdf.drawString(250, y, str(item.quantity))
+        pdf.drawString(320, y, f"{CURRENCY_SYMBOL}{item.price:.2f}")
+        pdf.drawString(420, y, f"{CURRENCY_SYMBOL}{item_subtotal:.2f}")
+
+        y -= 20
+
+    y -= 20
+    pdf.setFont("Helvetica-Bold", 12)
+    pdf.drawString(50, y, f"Subtotal: {CURRENCY_SYMBOL}{order.subtotal:.2f}")
+
+    y -= 20
+    pdf.drawString(50, y, f"Delivery Fee: {CURRENCY_SYMBOL}{(order.delivery_fee or 0):.2f}")
+
+    y -= 20
+    pdf.drawString(50, y, f"Total: {CURRENCY_SYMBOL}{order.total:.2f}")
+
+    y -= 30
+    pdf.drawString(50, y, f"Status: {order.status}")
+
+    pdf.save()
+
+    buffer.seek(0)
+    return buffer
 
 @app.route("/")
 def home():
@@ -186,9 +265,9 @@ def handle_orders():
     phone = data.get("phone")
     address = data.get("address")
     items = data.get("items")
-    subtotal = data.get("subtotal")
-    delivery_fee = data.get("delivery_fee")
-    total = data.get("total")
+    subtotal = data.get("subtotal") or 0
+    delivery_fee = data.get("delivery_fee") or 0
+    total = data.get("total") or 0
 
     if not customer_name or not customer_email or not items:
         return jsonify({
@@ -214,7 +293,7 @@ def handle_orders():
     for item in items:
         order_item = OrderItem(
             order_id=new_order.id,
-            product_id=item.get("id"),
+            product_id=str(item.get("id")),
             product_name=item.get("name"),
             price=item.get("price"),
             quantity=item.get("quantity")
@@ -223,42 +302,126 @@ def handle_orders():
 
     db.session.commit()
 
-    msg = Message(
-    subject="Order Confirmation",
-    sender=app.config['MAIL_USERNAME'],
-    recipients=[customer_email]
+    order_items_html = ""
+
+    for item in items:
+        name = item.get("name")
+        price = item.get("price")
+        quantity = item.get("quantity")
+
+        subtotal_item = price * quantity
+
+        order_items_html += f"""
+        <tr>
+            <td>{name}</td>
+            <td>{quantity}</td>
+            <td>{CURRENCY_SYMBOL}{price:.2f}</td>
+            <td>{CURRENCY_SYMBOL}{subtotal_item:.2f}</td>
+        </tr>
+        """
+
+    invoice_pdf = generate_invoice_pdf(new_order, new_order.order_items)
+
+    formatted_time = new_order.created_at.strftime("%d %b %Y, %H:%M")
+    whatsapp_number = "+263772912789"  # company WhatsApp number
+    tracking_link = f"http://localhost:5173/track-order/{new_order.id}"
+
+
+    customer_msg = Message(
+        subject=f"Order # {new_order.id} Confirmation - {formatted_time}" ,
+        recipients=[customer_email],
+        html=f"""
+        <h2>Thank you for your order, {customer_name}!</h2>
+
+        <p><strong>Order ID:</strong> # {new_order.id}</p>
+        <p><strong>Date:</strong> {formatted_time}</p>
+
+        <p>
+            <a href="{tracking_link}"
+            style="background:#111;color:white;padding:10px 15px;
+                    text-decoration:none;border-radius:5px;">
+            Track Your Order
+            </a>
+        </p>
+
+        <p>
+            Need help? WhatsApp us:
+            <a href="https://wa.me/{whatsapp_number}">
+                Chat with Chemical Brothers
+            </a>
+        </p>
+
+        <p>Your order has been received successfully.</p>
+
+        <h3>Order Details</h3>
+
+        <table border="1" cellpadding="8" cellspacing="0">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Qty</th>
+                    <th>Price</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                {order_items_html}
+            </tbody>
+        </table>
+
+        <h3>Total: {CURRENCY_SYMBOL}{total}</h3>
+
+        <p><strong>Delivery Address:</strong> {address}</p>
+        <p><strong>Order Status:</strong> {new_order.status}</p>
+
+        <p>We will contact you soon regarding delivery.</p>
+
+        <br>
+        <p>Regards,<br>Chemical Brothers Team</p>
+        """
     )
-
-    msg.body = f"""
-    Hello {customer_name},
-
-    Your order #{new_order.id} has been received.
-
-    Total: {total}
-
-    We will contact you shortly.
-
-    Thank you,
-    Chemical Brothers
-    """
+    customer_msg.attach(
+        filename=f"invoice_order_{new_order.id}.pdf",
+        content_type="application/pdf",
+        data=invoice_pdf.read()
+    )
 
     admin_msg = Message(
         subject="New Order Received",
-        sender=app.config['MAIL_USERNAME'],
-        recipients=[app.config['MAIL_USERNAME']]
+        recipients=[os.getenv("MAIL_USERNAME")],
+        html=f"""
+        <h2>New Order Received</h2>
+
+        <p><strong>Order ID:</strong> #{new_order.id}</p>
+        <p><strong>Date:</strong> {formatted_time}</p>
+
+        <p><strong>Customer:</strong> {customer_name}</p>
+        <p><strong>Email:</strong> {customer_email}</p>
+        <p><strong>Phone:</strong> {phone}</p>
+        <p><strong>Address:</strong> {address}</p>
+
+        <h3>Order Items</h3>
+
+        <table border="1" cellpadding="8" cellspacing="0">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Qty</th>
+                    <th>Price</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                {order_items_html}
+            </tbody>
+        </table>
+
+        <h3>Total: {CURRENCY_SYMBOL}{total}</h3>
+        """
     )
 
-    admin_msg.body = f"""
-    New order received:
-
-    Order ID: {new_order.id}
-    Customer: {customer_name}
-    Email: {customer_email}
-    Total: {total}
-    """
-
     try:
-        mail.send(msg)
+        mail.send(customer_msg)
     except Exception as e:
         print("Customer email failed:", e)
 
@@ -267,7 +430,6 @@ def handle_orders():
     except Exception as e:
         print("Admin email failed:", e)
 
-    mail.send(admin_msg)
 
     return jsonify({
         "success": True,
@@ -291,10 +453,18 @@ def update_order_status(order_id):
     data = request.get_json()
     new_status = data.get("status")
 
+    ALLOWED_STATUSES = ["Pending", "Processing", "Out for Delivery", "Delivered"]
+
     if not new_status:
         return jsonify({
             "success": False,
             "message": "Status is required."
+        }), 400
+    
+    if new_status not in ALLOWED_STATUSES:
+        return jsonify({
+            "success": False,
+            "message": "Invalid status"
         }), 400
 
     order = Order.query.get(order_id)
@@ -307,6 +477,59 @@ def update_order_status(order_id):
 
     order.status = new_status
     db.session.commit()
+
+    whatsapp_number = "+263772912789"  # company WhatsApp number
+   # tracking_link = f"http://localhost:5173/track-order/{order.id}"
+
+    # ✅ Add this block HERE
+    if new_status == "Processing":
+        message = "We have started preparing your order."
+    elif new_status == "Out for Delivery":
+        message = "Your order is on the way 🚚"
+    elif new_status == "Delivered":
+        message = "Your order has been delivered successfully."
+    else:
+        message = "Your order status has been updated."
+
+    try:
+        status_msg = Message(
+            subject=f"Update: Order #{order.id} is now {new_status}",
+            recipients=[order.customer_email],
+            html=f"""
+            <h2>Order Update</h2>
+
+            <p>Hello {order.customer_name},</p>
+
+            <p>Your order <strong>#{order.id}</strong> is now:</p>
+
+            <h3>{new_status}</h3>
+
+            <p>{message}</p>
+
+            <p>
+                <a href="{tracking_link}"
+                style="background:#111;color:white;padding:10px 15px;
+                        text-decoration:none;border-radius:5px;">
+                Track Your Order
+                </a>
+            </p>
+
+            <p>
+                Need help? WhatsApp us:
+                <a href="https://wa.me/{whatsapp_number}">
+                    Chat with Chemical Brothers
+                </a>
+            </p>
+
+            <br>
+            <p>Regards,<br>Chemical Brothers Team</p>
+            """
+        )
+
+        mail.send(status_msg)
+
+    except Exception as e:
+        print("Status email failed:", e)
 
     return jsonify({
         "success": True,
@@ -351,6 +574,27 @@ def admin_login():
         "success": False,
         "message": "Invalid username or password"
     }), 401
+
+@app.route("/orders/<int:order_id>/tracking", methods=["GET"])
+def track_order(order_id):
+    order = Order.query.get(order_id)
+
+    if not order:
+        return jsonify({
+            "success": False,
+            "message": "Order not found."
+        }), 404
+
+    return jsonify({
+        "success": True,
+        "order": {
+            "id": order.id,
+            "customer_name": order.customer_name,
+            "status": order.status,
+            "created_at": format_datetime(order.created_at),
+            "total": order.total
+        }
+    })
 
 with app.app_context():
     db.create_all()

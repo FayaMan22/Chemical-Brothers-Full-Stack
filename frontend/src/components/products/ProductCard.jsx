@@ -23,7 +23,7 @@ export default function ProductCard({ product }) {
         <p className="product-price">{formatCurrency(product.price)}</p>
 
         <div className="product-actions">
-          <Link to={`/products/${product.slug}`} className="product-btn">
+          <Link to={`/products/${product.id}`} className="product-btn">
             View
           </Link>
 
@@ -31,7 +31,7 @@ export default function ProductCard({ product }) {
                   onClick={() => {
                     addToCart(product);
                     setAdded(true);
-                    setTimoot(() => setAdded(false), 1200);
+                    setTimeout(() => setAdded(false), 1200);
                     }}>
                     {added ? "Added ✓" : "Add to Cart"}
           </button>

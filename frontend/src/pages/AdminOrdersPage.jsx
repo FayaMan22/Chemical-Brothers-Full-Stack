@@ -240,6 +240,10 @@ export default function AdminOrdersPage() {
                   Processing
                 </button>
 
+                <button onClick={() => updateOrderStatus(order.id, "Out for Delivery")}>
+                  Out for Delivery
+                </button>
+
                 <button onClick={() => updateOrderStatus(order.id, "Delivered")}>
                   Delivered
                 </button>

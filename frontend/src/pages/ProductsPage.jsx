@@ -1,13 +1,36 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ProductGrid from "../components/products/ProductGrid";
 import SearchBar from "../components/products/SearchBar";
-import products from "../data/mockProducts";
 
 function ProductsPage() {
+  const [products, setProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const categories = ["All", ...new Set(products.map((product) => product.category))];
+  useEffect(() => {
+    fetch("http://127.0.0.1:5000/products")
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to fetch products");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setProducts(data.products || data);
+        setLoading(false);
+      })
+      .catch(() => {
+        setError("Failed to load products.");
+        setLoading(false);
+      });
+  }, []);
+
+  const categories = [
+    "All",
+    ...new Set(products.map((product) => product.category)),
+  ];
 
   const filteredProducts = products
     .filter((product) =>
@@ -41,9 +64,14 @@ function ProductsPage() {
         ))}
       </div>
 
-      {filteredProducts.length === 0 ? (
+      {loading && <p style={{ textAlign: "center" }}>Loading products...</p>}
+      {error && <p style={{ textAlign: "center", color: "red" }}>{error}</p>}
+
+      {!loading && !error && filteredProducts.length === 0 && (
         <p className="no-products">No products found.</p>
-      ) : (
+      )}
+
+      {!loading && !error && filteredProducts.length > 0 && (
         <ProductGrid products={filteredProducts} />
       )}
     </main>

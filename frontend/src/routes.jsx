@@ -12,6 +12,7 @@ import ContactPage from "./pages/ContactPage";
 import AdminLoginPage from "./pages/AdminLoginPage";
 import AdminOrdersPage from "./pages/AdminOrdersPage";
 import AdminProtectedRoute from "./components/common/AdminProtectedRoute";
+import TrackOrderPage from "./pages/TrackingOrderPage";
 
 const router = createBrowserRouter([
   // PUBLIC ROUTES (with Layout)
@@ -21,11 +22,12 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <HomePage /> },
       { path: "products", element: <ProductsPage /> },
-      { path: "products/:slug", element: <ProductDetailPage /> },
+      { path: "products/:id", element: <ProductDetailPage /> },
       { path: "cart", element: <CartPage /> },
       { path: "checkout", element: <CheckoutPage /> },
       { path: "order-success", element: <OrderSuccessPage /> },
       { path: "contact", element: <ContactPage /> },
+      {path: "/track-order/:orderId", element: <TrackOrderPage />},
     ],
   },
 
