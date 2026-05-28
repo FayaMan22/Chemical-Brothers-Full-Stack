@@ -24,7 +24,7 @@ export default function AdminOrdersPage() {
   useEffect(() => {
     const token = localStorage.getItem("adminToken");
     
-    fetch("http://127.0.0.1:5000/orders", {
+    fetch("https://chemical-brothers-full-stack.onrender.com", {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -45,7 +45,7 @@ export default function AdminOrdersPage() {
 
     try {
       const response = await fetch(
-        `http://127.0.0.1:5000/orders/${orderId}/status`,
+        `https://chemical-brothers-full-stack.onrender.com/orders/${orderId}/status`,
         {
           method: "PATCH",
           headers: {

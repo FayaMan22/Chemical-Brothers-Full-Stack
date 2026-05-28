@@ -8,7 +8,7 @@ function TrackOrderPage() {
   const [message, setMessage] = useState("Loading order...");
 
   useEffect(() => {
-    fetch(`http://127.0.0.1:5000/orders/${orderId}/tracking`)
+    fetch(`https://chemical-brothers-full-stack.onrender.com/orders/${orderId}/tracking`)
       .then((res) => res.json())
       .then((data) => {
         if (data.success) {

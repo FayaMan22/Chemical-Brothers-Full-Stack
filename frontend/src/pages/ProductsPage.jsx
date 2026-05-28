@@ -10,7 +10,7 @@ function ProductsPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    fetch("http://127.0.0.1:5000/products")
+    fetch("https://chemical-brothers-full-stack.onrender.com/products")
       .then((response) => {
         if (!response.ok) {
           throw new Error("Failed to fetch products");
