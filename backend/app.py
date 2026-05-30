@@ -38,6 +38,7 @@ app.config["MAIL_USE_SSL"] = os.getenv("MAIL_USE_SSL", "False") == "True"
 app.config["MAIL_USERNAME"] = os.getenv("MAIL_USERNAME")
 app.config["MAIL_PASSWORD"] = os.getenv("MAIL_PASSWORD")
 app.config["MAIL_DEFAULT_SENDER"] = os.getenv("MAIL_USERNAME")
+print("About to send email ...")
 
 CURRENCY_SYMBOL = os.getenv("CURRENCY_SYMBOL", "$")
 
@@ -430,15 +431,17 @@ def handle_orders():
         """
     )
 
-    #/try:
-    #    mail.send(customer_msg)
-   # except Exception as e:
-    #    print("Customer email failed:", e)
+    try:
+       mail.send(customer_msg)
+       print("Customer email sent successfully")
+    except Exception as e:
+        print("Customer email failed:", str(e))
 
-  #  try:
-    #    mail.send(admin_msg)
-   # except Exception as e:
-   #     print("Admin email failed:", e)
+
+    # try:
+    #     mail.send(admin_msg)
+    # except Exception as e:
+    #     print("Admin email failed:", e)
 
 
     return jsonify({
