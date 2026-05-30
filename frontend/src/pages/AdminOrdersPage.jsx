@@ -24,7 +24,7 @@ export default function AdminOrdersPage() {
   useEffect(() => {
     const token = localStorage.getItem("adminToken");
     
-    fetch("https://chemical-brothers-full-stack.onrender.com", {
+    fetch("https://chemical-brothers-full-stack.onrender.com/orders", {
       headers: {
         Authorization: `Bearer ${token}`,
       },
