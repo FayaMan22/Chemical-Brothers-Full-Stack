@@ -1634,3 +1634,14 @@ body {
   background: #25d366;
   color: white;
 }
+
+.back-home-link {
+  margin-top: 15px;
+  text-align: center;
+  color: #0d6efd;
+  cursor: pointer;
+}
+
+.back-home-link:hover {
+  text-decoration: underline;
+}
