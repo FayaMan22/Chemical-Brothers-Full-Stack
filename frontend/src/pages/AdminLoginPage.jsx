@@ -22,7 +22,7 @@ function AdminLoginPage() {
     e.preventDefault();
 
     try {
-      const response = await fetch("http://chemical-brothers-full-stack.onrender.com/admin/login", {
+      const response = await fetch("https://chemical-brothers-full-stack.onrender.com/admin/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
