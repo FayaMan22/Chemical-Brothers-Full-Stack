@@ -431,12 +431,11 @@ def handle_orders():
         """
     )
 
-    try:
-       mail.send(customer_msg)
-       print("Customer email sent successfully")
-    except Exception as e:
-        print("Customer email failed:", str(e))
-
+    # try:
+    #    mail.send(customer_msg)
+    #    print("Customer email sent successfully")
+    # except Exception as e:
+    #     print("Customer email failed:", str(e))
 
     # try:
     #     mail.send(admin_msg)
