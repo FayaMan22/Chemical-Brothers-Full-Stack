@@ -334,7 +334,7 @@ def handle_orders():
 
     formatted_time = new_order.created_at.strftime("%d %b %Y, %H:%M")
     whatsapp_number = "+263772912789"  # company WhatsApp number
-    tracking_link = f"https://chemical-brothers-full-stack-7uoe.vercel.app/track-order/{order.id}"
+    tracking_link = f"https://chemical-brothers-full-stack-7uoe.vercel.app/track-order/{new_order.id}"
 
 
     customer_msg = Message(
