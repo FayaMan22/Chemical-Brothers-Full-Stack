@@ -67,7 +67,16 @@ function AdminLoginPage() {
         />
 
         <button type="submit">Login</button>
+        
+        <p
+          style={{ cursor: "pointer", marginTop: "15px", textAlign: "center" }}
+          onClick={() => navigate("/")}
+        >
+          ← Back to Home
+        </p>
+        
       </form>
+      
     </div>
   );
 }
