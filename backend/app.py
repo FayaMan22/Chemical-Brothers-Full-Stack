@@ -501,45 +501,45 @@ def update_order_status(order_id):
     else:
         message = "Your order status has been updated."
 
-    try:
-        status_msg = Message(
-            subject=f"Update: Order #{order.id} is now {new_status}",
-            recipients=[order.customer_email],
-            html=f"""
-            <h2>Order Update</h2>
+    # try:
+    #     status_msg = Message(
+    #         subject=f"Update: Order #{order.id} is now {new_status}",
+    #         recipients=[order.customer_email],
+    #         html=f"""
+    #         <h2>Order Update</h2>
 
-            <p>Hello {order.customer_name},</p>
+    #         <p>Hello {order.customer_name},</p>
 
-            <p>Your order <strong>#{order.id}</strong> is now:</p>
+    #         <p>Your order <strong>#{order.id}</strong> is now:</p>
 
-            <h3>{new_status}</h3>
+    #         <h3>{new_status}</h3>
 
-            <p>{message}</p>
+    #         <p>{message}</p>
 
-            <p>
-                <a href="{tracking_link}"
-                style="background:#111;color:white;padding:10px 15px;
-                        text-decoration:none;border-radius:5px;">
-                Track Your Order
-                </a>
-            </p>
+    #         <p>
+    #             <a href="{tracking_link}"
+    #             style="background:#111;color:white;padding:10px 15px;
+    #                     text-decoration:none;border-radius:5px;">
+    #             Track Your Order
+    #             </a>
+    #         </p>
 
-            <p>
-                Need help? WhatsApp us:
-                <a href="https://wa.me/{whatsapp_number}">
-                    Chat with Chemical Brothers
-                </a>
-            </p>
+    #         <p>
+    #             Need help? WhatsApp us:
+    #             <a href="https://wa.me/{whatsapp_number}">
+    #                 Chat with Chemical Brothers
+    #             </a>
+    #         </p>
 
-            <br>
-            <p>Regards,<br>Chemical Brothers Team</p>
-            """
-        )
+    #         <br>
+    #         <p>Regards,<br>Chemical Brothers Team</p>
+    #         """
+    #     )
 
-        mail.send(status_msg)
+    #     mail.send(status_msg)
 
-    except Exception as e:
-        print("Status email failed:", e)
+    #except Exception as e:
+     #   print("Status email failed:", e)
 
     return jsonify({
         "success": True,
