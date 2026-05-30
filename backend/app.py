@@ -16,15 +16,13 @@ from reportlab.pdfgen import canvas
 load_dotenv()
 
 app = Flask(__name__)
-CORS(app, resources={
-    r"/*": {
-        "origins" : [
-            "https://chemical-brothers-full-stack-7uoe.vercel.app",
-            "http://localhost:5173"
-        ]
-    }
-})
-
+CORS(
+    app,
+    resources={r"/*": {"origins": [
+        "https://chemical-brothers-full-stack-7uoe.vercel.app"
+    ]}},
+    supports_credentials=True
+)
 database_url = os.environ.get("DATABASE_URL")
 
 if database_url and database_url.startswith("postgres://"):
