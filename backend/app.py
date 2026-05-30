@@ -430,15 +430,15 @@ def handle_orders():
         """
     )
 
-    try:
-        mail.send(customer_msg)
-    except Exception as e:
-        print("Customer email failed:", e)
+    #/try:
+    #    mail.send(customer_msg)
+   # except Exception as e:
+    #    print("Customer email failed:", e)
 
-    try:
-        mail.send(admin_msg)
-    except Exception as e:
-        print("Admin email failed:", e)
+  #  try:
+    #    mail.send(admin_msg)
+   # except Exception as e:
+   #     print("Admin email failed:", e)
 
 
     return jsonify({
